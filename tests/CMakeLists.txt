@@ -9,6 +9,7 @@ set(TEST_SOURCES
     test_matrix.cpp
     test_matrixJagged.cpp
     test_matrixAlgorithms.cpp
+    test_matrixPerformance.cpp
 
     # Add new tests here manually
 )

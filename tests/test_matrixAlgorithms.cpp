@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <optional>
+#include <type_traits>
 #include "MatrixAlgorithms.hpp"
 #include "Matrix.hpp"
 #include "MatrixJagged.hpp"
@@ -207,7 +208,7 @@ TYPED_TEST(MatrixAlgorithmsTest, CreateIdentity_LargeMatrix_Success) {
 }
 
 // Test determinant calculation using LU decomposition
-TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_2x2IntegerMatrix_Success) {
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_2x2Matrix_Success) {
     using MatrixType = TypeParam;
     using ValueType = typename MatrixType::value_type;
     
@@ -218,8 +219,13 @@ TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_2x2IntegerMatrix_Success) {
     // det = 1*4 - 2*3 = -2
     auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
     
-    EXPECT_TRUE(result.first); // Success
-    EXPECT_NEAR(result.second, -2.0, 1e-10);
+    EXPECT_TRUE(result.success());
+    EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    if constexpr (std::is_integral_v<ValueType>) {
+        EXPECT_EQ(result.value, ValueType{-2});
+    } else {
+        EXPECT_NEAR(static_cast<double>(result.value), -2.0, 1e-10);
+    }
 }
 
 TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_NonSquareMatrix_Failure) {
@@ -229,11 +235,12 @@ TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_NonSquareMatrix_Failure) {
     
     auto result = MatrixAlgorithms<MatrixType>::determinantLU(rect2x3);
     
-    EXPECT_FALSE(result.first); // Failure
-    EXPECT_EQ(result.second, 0.0); // Default value on failure
+    EXPECT_FALSE(result.success());
+    EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::NOT_SQUARE);
+    EXPECT_EQ(result.value, typename MatrixType::value_type{0});
 }
 
-TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_SingularMatrix_Failure) {
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_SingularMatrix_Success) {
     using MatrixType = TypeParam;
     using ValueType = typename MatrixType::value_type;
     
@@ -245,11 +252,13 @@ TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_SingularMatrix_Failure) {
     
     auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
     
-    EXPECT_TRUE(result.first); // Failure - matrix is singular
-    EXPECT_EQ(result.second, 0.0); // Default value on failure
+    // Singular matrix should be SUCCESS with value 0
+    EXPECT_TRUE(result.success());
+    EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    EXPECT_EQ(result.value, ValueType{0});
 }
 
-TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_3x3IntegerMatrix_Success) {
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_3x3Matrix_Success) {
     using MatrixType = TypeParam;
     using ValueType = typename MatrixType::value_type;
     
@@ -261,8 +270,13 @@ TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_3x3IntegerMatrix_Success) {
     // det = 2*(2*2 - (-1)*(-1)) - (-1)*(-1*2 - (-1)*0) + 0*... = 2*(4-1) - (-1)*(-2) = 6 - 2 = 4
     auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
     
-    EXPECT_TRUE(result.first);
-    EXPECT_NEAR(result.second, 4.0, 1e-10);
+    EXPECT_TRUE(result.success());
+    EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    if constexpr (std::is_integral_v<ValueType>) {
+        EXPECT_EQ(result.value, ValueType{4});
+    } else {
+        EXPECT_NEAR(static_cast<double>(result.value), 4.0, 1e-10);
+    }
 }
 
 TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_IdentityMatrix_ReturnsOne) {
@@ -274,8 +288,9 @@ TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_IdentityMatrix_ReturnsOne) {
     
     auto result = MatrixAlgorithms<MatrixType>::determinantLU(*identity_opt);
     
-    EXPECT_TRUE(result.first);
-    EXPECT_NEAR(result.second, 1.0, 1e-10);
+    EXPECT_TRUE(result.success());
+    EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    EXPECT_EQ(result.value, typename MatrixType::value_type{1});
 }
 
 TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_ZeroSizedMatrix_ReturnsOne) {
@@ -285,11 +300,12 @@ TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_ZeroSizedMatrix_ReturnsOne) {
     
     auto result = MatrixAlgorithms<MatrixType>::determinantLU(zeroMatrix);
     
-    EXPECT_TRUE(result.first);
-    EXPECT_NEAR(result.second, 1.0, 1e-10);
+    EXPECT_TRUE(result.success());
+    EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    EXPECT_EQ(result.value, typename MatrixType::value_type{1});
 }
 
-TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_1x1IntegerMatrix_Success) {
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_1x1Matrix_Success) {
     using MatrixType = TypeParam;
     using ValueType = typename MatrixType::value_type;
     
@@ -298,8 +314,9 @@ TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_1x1IntegerMatrix_Success) {
     
     auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
     
-    EXPECT_TRUE(result.first);
-    EXPECT_NEAR(result.second, 5.0, 1e-10);
+    EXPECT_TRUE(result.success());
+    EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    EXPECT_EQ(result.value, ValueType{5});
 }
 
 TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_WithRowSwaps_Success) {
@@ -315,11 +332,40 @@ TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_WithRowSwaps_Success) {
     // det = -1 (due to row swap)
     auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
     
-    EXPECT_TRUE(result.first);
-    EXPECT_NEAR(result.second, -1.0, 1e-10);
+    EXPECT_TRUE(result.success());
+    EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    if constexpr (std::is_integral_v<ValueType>) {
+        EXPECT_EQ(result.value, ValueType{-1});
+    } else {
+        EXPECT_NEAR(static_cast<double>(result.value), -1.0, 1e-10);
+    }
 }
 
-TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_LargeIntegerMatrix_Success) {
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_OverflowDetection) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    // Only test overflow for integer types
+    if constexpr (std::is_integral_v<ValueType>) {
+        // Create a matrix that will cause overflow
+        MatrixType large_mat(2, 2);
+        constexpr ValueType large_val = std::numeric_limits<ValueType>::max();
+        
+        large_mat(0, 0) = large_val;
+        large_mat(0, 1) = ValueType{0};
+        large_mat(1, 0) = ValueType{0}; 
+        large_mat(1, 1) = ValueType{2}; // large_val * 2 will overflow
+        
+        auto result = MatrixAlgorithms<MatrixType>::determinantLU(large_mat);
+        
+        EXPECT_FALSE(result.success());
+        EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::OVERFLOW_NUMBER);
+        EXPECT_EQ(result.value, ValueType{0});
+    }
+    // For floating-point types, this test does nothing
+}
+
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_LargeMatrix_Success) {
     using MatrixType = TypeParam;
     using ValueType = typename MatrixType::value_type;
     
@@ -339,9 +385,10 @@ TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_LargeIntegerMatrix_Success) {
     
     auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
     
-    EXPECT_TRUE(result.first);
+    EXPECT_TRUE(result.success());
+    EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
     // For diagonally dominant matrix, determinant should be non-zero
-    EXPECT_GT(std::abs(result.second), 0.0);
+    EXPECT_NE(result.value, ValueType{0});
 }
 
 // Test that original matrix is not modified
@@ -368,6 +415,194 @@ TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_OriginalMatrixNotModified) {
     EXPECT_EQ(original(1, 1), original_11);
     
     // Verify determinant is correct
-    EXPECT_TRUE(result.first);
-    EXPECT_NEAR(result.second, -2.0, 1e-10);
+    EXPECT_TRUE(result.success());
+    EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    if constexpr (std::is_integral_v<ValueType>) {
+        EXPECT_EQ(result.value, ValueType{-2});
+    } else {
+        EXPECT_NEAR(static_cast<double>(result.value), -2.0, 1e-10);
+    }
+}
+
+// Test determinant calculation with known transformations
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_WithKnownTransformations) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    // Use smaller values: 2, 3, 2 instead of 2, 3, 5 to avoid overflow
+    MatrixType diagonal(3, 3);
+    // Initialize all elements to zero first
+    for (size_t i = 0; i < 3; ++i) {
+        for (size_t j = 0; j < 3; ++j) {
+            diagonal(i, j) = ValueType{0};
+        }
+    }
+    // Set diagonal elements
+    diagonal(0, 0) = ValueType{2};
+    diagonal(1, 1) = ValueType{3}; 
+    diagonal(2, 2) = ValueType{2}; // det = 2 * 3 * 2 = 12
+    
+    // Test 1: Verify determinant of diagonal matrix
+    auto det_diagonal = MatrixAlgorithms<MatrixType>::determinantLU(diagonal);
+    EXPECT_TRUE(det_diagonal.success());
+    EXPECT_EQ(det_diagonal.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    if constexpr (std::is_integral_v<ValueType>) {
+        EXPECT_EQ(det_diagonal.value, ValueType{12});
+    } else {
+        EXPECT_NEAR(static_cast<double>(det_diagonal.value), 12.0, 1e-10);
+    }
+}
+
+// Test determinant with row scaling operations - USE SMALLER VALUES
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_WithRowScaling) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    // Create identity matrix (det = 1) - INITIALIZE PROPERLY
+    MatrixType identity(2, 2); // Smaller matrix
+    for (size_t i = 0; i < 2; ++i) {
+        for (size_t j = 0; j < 2; ++j) {
+            identity(i, j) = (i == j) ? ValueType{1} : ValueType{0};
+        }
+    }
+    
+    // Use smaller scaling factors to avoid overflow
+    const ValueType k = ValueType{2};
+    const ValueType m = ValueType{3};
+    
+    MatrixType scaled = identity;
+    for (size_t j = 0; j < 2; ++j) {
+        scaled(0, j) *= k;
+        scaled(1, j) *= m;
+    }
+    // det should be k * m = 6
+    
+    auto result = MatrixAlgorithms<MatrixType>::determinantLU(scaled);
+    EXPECT_TRUE(result.success());
+    EXPECT_EQ(result.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    if constexpr (std::is_integral_v<ValueType>) {
+        EXPECT_EQ(result.value, ValueType{6});
+    } else {
+        EXPECT_NEAR(static_cast<double>(result.value), 6.0, 1e-10);
+    }
+}
+
+// Test determinant with triangular matrices (easy to compute manually)
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_TriangularMatrices) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    // Upper triangular matrix
+    MatrixType upper(3, 3);
+    upper(0, 0) = ValueType{2}; upper(0, 1) = ValueType{3}; upper(0, 2) = ValueType{1};
+    upper(1, 0) = ValueType{0}; upper(1, 1) = ValueType{4}; upper(1, 2) = ValueType{5};
+    upper(2, 0) = ValueType{0}; upper(2, 1) = ValueType{0}; upper(2, 2) = ValueType{6};
+    // det = 2 * 4 * 6 = 48
+    
+    auto det_upper = MatrixAlgorithms<MatrixType>::determinantLU(upper);
+    EXPECT_TRUE(det_upper.success());
+    EXPECT_EQ(det_upper.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    if constexpr (std::is_integral_v<ValueType>) {
+        EXPECT_EQ(det_upper.value, ValueType{48});
+    } else {
+        EXPECT_NEAR(static_cast<double>(det_upper.value), 48.0, 1e-10);
+    }
+}
+
+// Test determinant preservation under row operations that don't change determinant
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_RowOperationsPreservation) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    // Create a matrix with known determinant
+    MatrixType original(3, 3);
+    original(0, 0) = ValueType{1}; original(0, 1) = ValueType{2}; original(0, 2) = ValueType{3};
+    original(1, 0) = ValueType{4}; original(1, 1) = ValueType{5}; original(1, 2) = ValueType{6};
+    original(2, 0) = ValueType{7}; original(2, 1) = ValueType{8}; original(2, 2) = ValueType{10};
+    // det = 1*(5*10 - 6*8) - 2*(4*10 - 6*7) + 3*(4*8 - 5*7) 
+    //     = 1*(50-48) - 2*(40-42) + 3*(32-35)
+    //     = 2 + 4 - 9 = -3
+    
+    auto det_original = MatrixAlgorithms<MatrixType>::determinantLU(original);
+    EXPECT_TRUE(det_original.success());
+    
+    // Apply row operation: R2 = R2 + 2*R1 (determinant should not change)
+    MatrixType transformed = original;
+    for (size_t j = 0; j < 3; ++j) {
+        transformed(1, j) += ValueType{2} * transformed(0, j);
+    }
+    
+    auto det_transformed = MatrixAlgorithms<MatrixType>::determinantLU(transformed);
+    EXPECT_TRUE(det_transformed.success());
+    
+    // Determinant should be preserved
+    if constexpr (std::is_integral_v<ValueType>) {
+        EXPECT_EQ(det_transformed.value, det_original.value);
+    } else {
+        EXPECT_NEAR(static_cast<double>(det_transformed.value), 
+                   static_cast<double>(det_original.value), 1e-10);
+    }
+}
+
+// Test with permutation matrices (determinant = ±1)
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_PermutationMatrices) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    // Even permutation (determinant = 1)
+    MatrixType even_perm(3, 3);
+    even_perm(0, 0) = ValueType{0}; even_perm(0, 1) = ValueType{1}; even_perm(0, 2) = ValueType{0};
+    even_perm(1, 0) = ValueType{0}; even_perm(1, 1) = ValueType{0}; even_perm(1, 2) = ValueType{1};
+    even_perm(2, 0) = ValueType{1}; even_perm(2, 1) = ValueType{0}; even_perm(2, 2) = ValueType{0};
+    // This is a cyclic permutation (even)
+    
+    auto det_even = MatrixAlgorithms<MatrixType>::determinantLU(even_perm);
+    EXPECT_TRUE(det_even.success());
+    EXPECT_EQ(det_even.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    EXPECT_EQ(det_even.value, ValueType{1});
+    
+    // Odd permutation (determinant = -1)
+    MatrixType odd_perm(3, 3);
+    odd_perm(0, 0) = ValueType{0}; odd_perm(0, 1) = ValueType{1}; odd_perm(0, 2) = ValueType{0};
+    odd_perm(1, 0) = ValueType{1}; odd_perm(1, 1) = ValueType{0}; odd_perm(1, 2) = ValueType{0};
+    odd_perm(2, 0) = ValueType{0}; odd_perm(2, 1) = ValueType{0}; odd_perm(2, 2) = ValueType{1};
+    // This is a transposition (odd)
+    
+    auto det_odd = MatrixAlgorithms<MatrixType>::determinantLU(odd_perm);
+    EXPECT_TRUE(det_odd.success());
+    EXPECT_EQ(det_odd.error, MatrixAlgorithms<MatrixType>::DeterminantError::SUCCESS);
+    EXPECT_EQ(det_odd.value, ValueType{-1});
+}
+
+// Additional specific type tests
+TEST(MatrixAlgorithmsSpecific, DeterminantReturnTypes) {
+    // Test int matrix returns int
+    Matrix<int> intMatrix(2, 2);
+    intMatrix(0, 0) = 1; intMatrix(0, 1) = 2;
+    intMatrix(1, 0) = 3; intMatrix(1, 1) = 4;
+    
+    auto intResult = MatrixAlgorithms<Matrix<int>>::determinantLU(intMatrix);
+    static_assert(std::is_same_v<decltype(intResult.value), int>);
+    EXPECT_TRUE(intResult.success());
+    EXPECT_EQ(intResult.value, -2);
+    
+    // Test double matrix returns double  
+    Matrix<double> doubleMatrix(2, 2);
+    doubleMatrix(0, 0) = 1.5; doubleMatrix(0, 1) = 2.5;
+    doubleMatrix(1, 0) = 3.5; doubleMatrix(1, 1) = 4.5;
+    
+    auto doubleResult = MatrixAlgorithms<Matrix<double>>::determinantLU(doubleMatrix);
+    static_assert(std::is_same_v<decltype(doubleResult.value), double>);
+    EXPECT_TRUE(doubleResult.success());
+    EXPECT_NEAR(doubleResult.value, -2.0, 1e-10);
+    
+    // Test float matrix returns float
+    Matrix<float> floatMatrix(2, 2);
+    floatMatrix(0, 0) = 1.5f; floatMatrix(0, 1) = 2.5f;
+    floatMatrix(1, 0) = 3.5f; floatMatrix(1, 1) = 4.5f;
+    
+    auto floatResult = MatrixAlgorithms<Matrix<float>>::determinantLU(floatMatrix);
+    static_assert(std::is_same_v<decltype(floatResult.value), float>);
+    EXPECT_TRUE(floatResult.success());
+    EXPECT_NEAR(floatResult.value, -2.0f, 1e-5f);
 }

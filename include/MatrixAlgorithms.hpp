@@ -1,10 +1,11 @@
-// Add to .\include\MatrixAlgorithms.hpp
-
 #pragma once
 #include <optional>
 #include <vector>
 #include <cmath>
 #include <stdexcept>
+#include <utility>
+#include <cstdint>
+#include <limits>
 #include "Matrix.hpp"
 #include "MatrixJagged.hpp"
 
@@ -12,6 +13,23 @@ template<typename MatrixType>
 class MatrixAlgorithms {
 public:
     using value_type = typename MatrixType::value_type;
+    
+    // Error codes for determinant calculation
+    enum class DeterminantError {
+        SUCCESS = 0,          // Successfully computed determinant
+        NOT_SQUARE,           // Matrix is not square - cannot compute determinant
+        OVERFLOW_NUMBER              // Determinant value overflows the return type
+        // Note: Singular matrices are SUCCESS with value 0
+    };
+    
+    // Result type for determinant calculation
+    struct DeterminantResult {
+        DeterminantError error;
+        value_type value;
+        
+        bool success() const { return error == DeterminantError::SUCCESS; }
+        operator bool() const { return success(); }
+    };
     
     // Creates identity matrix of the same size as reference matrix
     // Returns std::nullopt if matrix is not square
@@ -90,16 +108,33 @@ private:
         }
     }
     
-    // Calculate determinant from LU decomposition result
-    static double calculateDeterminantFromLU(const Matrix<double>& LU, int sign) {
-        double det = static_cast<double>(sign);
+    // Calculate determinant from LU decomposition result with overflow check
+    static DeterminantResult calculateDeterminantFromLUProtected(
+        const Matrix<double>& LU, int sign) {
+        
+        double det_double = static_cast<double>(sign);
         const size_t n = LU.rows;
         
         for (size_t i = 0; i < n; ++i) {
-            det *= LU(i, i);
+            det_double *= LU(i, i);
         }
         
-        return det;
+        // For integer types, check for overflow when converting back
+        if constexpr (std::is_integral_v<value_type>) {
+            constexpr double max_val = static_cast<double>(std::numeric_limits<value_type>::max());
+            constexpr double min_val = static_cast<double>(std::numeric_limits<value_type>::min());
+            
+            if (det_double > max_val || det_double < min_val) {
+                // Overflow detected
+                return {DeterminantError::OVERFLOW_NUMBER, value_type{0}};
+            }
+            
+            // Round to nearest integer for integral types
+            return {DeterminantError::SUCCESS, static_cast<value_type>(std::round(det_double))};
+        } else {
+            // For floating-point types, direct conversion
+            return {DeterminantError::SUCCESS, static_cast<value_type>(det_double)};
+        }
     }
     
     // Initialize pivot vector
@@ -124,23 +159,20 @@ private:
     
 public:
     // Calculate determinant using LU decomposition with partial pivoting
-    // Returns pair: (success, determinant_value)
-    static std::pair<bool, double> determinantLU(const MatrixType& matrix) {
+    static DeterminantResult determinantLU(const MatrixType& matrix) {
         // Validate input matrix
         if (matrix.rows != matrix.cols) {
-            return {false, 0.0};
+            return {DeterminantError::NOT_SQUARE, value_type{0}};
         }
         
         const size_t n = matrix.rows;
         
         // Handle edge cases
-        if (n == 0) return {true, 1.0}; // Determinant of 0x0 matrix is 1 by convention
-        if (n == 1) return {true, static_cast<double>(matrix(0, 0))};
+        if (n == 0) return {DeterminantError::SUCCESS, value_type{1}};
+        if (n == 1) return {DeterminantError::SUCCESS, matrix(0, 0)};
         
-        // CAST MATRIX TO DOUBLE
+        // Normal LU decomposition (always uses double internally)
         Matrix<double> LU = convertToDoubleMatrix(matrix);
-        
-        // Initialize pivot tracking
         std::vector<size_t> pivot = initializePivot(n);
         int sign = 1;
         
@@ -148,7 +180,8 @@ public:
         for (size_t k = 0; k < n; ++k) {
             // Check if the entire column is singular (all potential pivots are zero)
             if (isColumnSingular(LU, k, k)) {
-                return {true, value_type{0}}; // Matrix is singular, determinant is 0
+                // Matrix is singular - determinant is 0 (SUCCESS case)
+                return {DeterminantError::SUCCESS, value_type{0}};
             }
             
             // Find pivot element in current column
@@ -163,14 +196,7 @@ public:
             eliminateColumn(LU, k);
         }
         
-        // Calculate determinant from LU result
-        double det_double = calculateDeterminantFromLU(LU, sign);
-        if constexpr (std::is_integral_v<value_type>) {
-            // For integer types, round to nearest integer
-            return {true, static_cast<value_type>(std::round(det_double))};
-        } else {
-            // For floating-point types, direct conversion
-            return {true, static_cast<value_type>(det_double)};
-        }
+        // Use protected calculation with overflow check
+        return calculateDeterminantFromLUProtected(LU, sign);
     }
 };
