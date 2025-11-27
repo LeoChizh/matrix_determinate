@@ -1,8 +1,12 @@
+// Add to .\include\MatrixAlgorithms.hpp
+
 #pragma once
 #include <optional>
+#include <vector>
+#include <cmath>
+#include <stdexcept>
 #include "Matrix.hpp"
 #include "MatrixJagged.hpp"
-
 
 template<typename MatrixType>
 class MatrixAlgorithms {
@@ -25,5 +29,148 @@ public:
         }
         
         return identity;
+    }
+    
+private:
+    // Convert any matrix to double matrix
+    static Matrix<double> convertToDoubleMatrix(const MatrixType& matrix) {
+        Matrix<double> result(matrix.rows, matrix.cols);
+        for (size_t i = 0; i < matrix.rows; ++i) {
+            for (size_t j = 0; j < matrix.cols; ++j) {
+                result(i, j) = static_cast<double>(matrix(i, j));
+            }
+        }
+        return result;
+    }
+    
+    // Find the pivot element in a column for LU decomposition
+    static size_t findPivot(const Matrix<double>& LU, size_t col, size_t start_row) {
+        size_t max_index = start_row;
+        double max_val = std::abs(LU(start_row, col));
+        
+        for (size_t i = start_row + 1; i < LU.rows; ++i) {
+            double current_val = std::abs(LU(i, col));
+            if (current_val > max_val) {
+                max_val = current_val;
+                max_index = i;
+            }
+        }
+        
+        return max_index;
+    }
+    
+    // Swap two rows in the matrix and update pivot tracking
+    static void swapRows(Matrix<double>& LU, size_t row1, size_t row2, 
+                        std::vector<size_t>& pivot, int& sign) {
+        if (row1 == row2) return;
+        
+        // Swap rows in LU matrix
+        for (size_t j = 0; j < LU.cols; ++j) {
+            std::swap(LU(row1, j), LU(row2, j));
+        }
+        
+        // Update pivot vector and sign
+        std::swap(pivot[row1], pivot[row2]);
+        sign = -sign;
+    }
+    
+    // Perform the elimination step for LU decomposition
+    static void eliminateColumn(Matrix<double>& LU, size_t pivot_row) {
+        const size_t n = LU.rows;
+        double pivot_value = LU(pivot_row, pivot_row);
+        
+        for (size_t i = pivot_row + 1; i < n; ++i) {
+            // Compute multiplier
+            LU(i, pivot_row) /= pivot_value;
+            
+            // Update remaining submatrix
+            for (size_t j = pivot_row + 1; j < n; ++j) {
+                LU(i, j) -= LU(i, pivot_row) * LU(pivot_row, j);
+            }
+        }
+    }
+    
+    // Calculate determinant from LU decomposition result
+    static double calculateDeterminantFromLU(const Matrix<double>& LU, int sign) {
+        double det = static_cast<double>(sign);
+        const size_t n = LU.rows;
+        
+        for (size_t i = 0; i < n; ++i) {
+            det *= LU(i, i);
+        }
+        
+        return det;
+    }
+    
+    // Initialize pivot vector
+    static std::vector<size_t> initializePivot(size_t n) {
+        std::vector<size_t> pivot(n);
+        for (size_t i = 0; i < n; ++i) {
+            pivot[i] = i;
+        }
+        return pivot;
+    }
+    
+    // Check if matrix is singular - all potential pivots in column are zero
+    static bool isColumnSingular(const Matrix<double>& LU, size_t col, size_t start_row) {
+        constexpr double tolerance = 1e-12;
+        for (size_t i = start_row; i < LU.rows; ++i) {
+            if (std::abs(LU(i, col)) > tolerance) {
+                return false; // Found a non-zero pivot candidate
+            }
+        }
+        return true; // All zeros in this column
+    }
+    
+public:
+    // Calculate determinant using LU decomposition with partial pivoting
+    // Returns pair: (success, determinant_value)
+    static std::pair<bool, double> determinantLU(const MatrixType& matrix) {
+        // Validate input matrix
+        if (matrix.rows != matrix.cols) {
+            return {false, 0.0};
+        }
+        
+        const size_t n = matrix.rows;
+        
+        // Handle edge cases
+        if (n == 0) return {true, 1.0}; // Determinant of 0x0 matrix is 1 by convention
+        if (n == 1) return {true, static_cast<double>(matrix(0, 0))};
+        
+        // CAST MATRIX TO DOUBLE
+        Matrix<double> LU = convertToDoubleMatrix(matrix);
+        
+        // Initialize pivot tracking
+        std::vector<size_t> pivot = initializePivot(n);
+        int sign = 1;
+        
+        // Perform LU decomposition with partial pivoting
+        for (size_t k = 0; k < n; ++k) {
+            // Check if the entire column is singular (all potential pivots are zero)
+            if (isColumnSingular(LU, k, k)) {
+                return {true, value_type{0}}; // Matrix is singular, determinant is 0
+            }
+            
+            // Find pivot element in current column
+            size_t pivot_index = findPivot(LU, k, k);
+            
+            // Swap rows if necessary
+            if (pivot_index != k) {
+                swapRows(LU, k, pivot_index, pivot, sign);
+            }
+            
+            // Perform elimination for current column
+            eliminateColumn(LU, k);
+        }
+        
+        // Calculate determinant from LU result
+        double det_double = calculateDeterminantFromLU(LU, sign);
+        if constexpr (std::is_integral_v<value_type>) {
+            // For integer types, round to nearest integer
+            return {true, static_cast<value_type>(std::round(det_double))};
+        } else {
+            // For floating-point types, direct conversion
+            return {true, static_cast<value_type>(det_double)};
+        }
     }
 };

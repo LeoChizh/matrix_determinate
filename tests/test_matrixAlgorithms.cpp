@@ -205,3 +205,169 @@ TYPED_TEST(MatrixAlgorithmsTest, CreateIdentity_LargeMatrix_Success) {
     EXPECT_EQ((*identity)(0, 1), typename MatrixType::value_type{0});
     EXPECT_EQ((*identity)(1, 0), typename MatrixType::value_type{0});
 }
+
+// Test determinant calculation using LU decomposition
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_2x2IntegerMatrix_Success) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    MatrixType mat(2, 2);
+    mat(0, 0) = ValueType{1}; mat(0, 1) = ValueType{2};
+    mat(1, 0) = ValueType{3}; mat(1, 1) = ValueType{4};
+    
+    // det = 1*4 - 2*3 = -2
+    auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
+    
+    EXPECT_TRUE(result.first); // Success
+    EXPECT_NEAR(result.second, -2.0, 1e-10);
+}
+
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_NonSquareMatrix_Failure) {
+    using MatrixType = TypeParam;
+    
+    MatrixType rect2x3(2, 3);
+    
+    auto result = MatrixAlgorithms<MatrixType>::determinantLU(rect2x3);
+    
+    EXPECT_FALSE(result.first); // Failure
+    EXPECT_EQ(result.second, 0.0); // Default value on failure
+}
+
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_SingularMatrix_Failure) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    MatrixType mat(3, 3);
+    // Create a singular matrix (rows 1 and 2 are linearly dependent)
+    mat(0, 0) = ValueType{1}; mat(0, 1) = ValueType{2}; mat(0, 2) = ValueType{3};
+    mat(1, 0) = ValueType{4}; mat(1, 1) = ValueType{5}; mat(1, 2) = ValueType{6};
+    mat(2, 0) = ValueType{7}; mat(2, 1) = ValueType{8}; mat(2, 2) = ValueType{9};
+    
+    auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
+    
+    EXPECT_TRUE(result.first); // Failure - matrix is singular
+    EXPECT_EQ(result.second, 0.0); // Default value on failure
+}
+
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_3x3IntegerMatrix_Success) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    MatrixType mat(3, 3);
+    mat(0, 0) = ValueType{2}; mat(0, 1) = ValueType{-1}; mat(0, 2) = ValueType{0};
+    mat(1, 0) = ValueType{-1}; mat(1, 1) = ValueType{2}; mat(1, 2) = ValueType{-1};
+    mat(2, 0) = ValueType{0}; mat(2, 1) = ValueType{-1}; mat(2, 2) = ValueType{2};
+    
+    // det = 2*(2*2 - (-1)*(-1)) - (-1)*(-1*2 - (-1)*0) + 0*... = 2*(4-1) - (-1)*(-2) = 6 - 2 = 4
+    auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
+    
+    EXPECT_TRUE(result.first);
+    EXPECT_NEAR(result.second, 4.0, 1e-10);
+}
+
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_IdentityMatrix_ReturnsOne) {
+    using MatrixType = TypeParam;
+    
+    MatrixType identity(3, 3);
+    auto identity_opt = MatrixAlgorithms<MatrixType>::createIdentity(identity);
+    ASSERT_TRUE(identity_opt.has_value());
+    
+    auto result = MatrixAlgorithms<MatrixType>::determinantLU(*identity_opt);
+    
+    EXPECT_TRUE(result.first);
+    EXPECT_NEAR(result.second, 1.0, 1e-10);
+}
+
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_ZeroSizedMatrix_ReturnsOne) {
+    using MatrixType = TypeParam;
+    
+    MatrixType zeroMatrix(0, 0);
+    
+    auto result = MatrixAlgorithms<MatrixType>::determinantLU(zeroMatrix);
+    
+    EXPECT_TRUE(result.first);
+    EXPECT_NEAR(result.second, 1.0, 1e-10);
+}
+
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_1x1IntegerMatrix_Success) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    MatrixType mat(1, 1);
+    mat(0, 0) = ValueType{5};
+    
+    auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
+    
+    EXPECT_TRUE(result.first);
+    EXPECT_NEAR(result.second, 5.0, 1e-10);
+}
+
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_WithRowSwaps_Success) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    MatrixType mat(3, 3);
+    // Matrix that requires row swapping during LU decomposition
+    mat(0, 0) = ValueType{0}; mat(0, 1) = ValueType{1}; mat(0, 2) = ValueType{0};
+    mat(1, 0) = ValueType{1}; mat(1, 1) = ValueType{0}; mat(1, 2) = ValueType{0};
+    mat(2, 0) = ValueType{0}; mat(2, 1) = ValueType{0}; mat(2, 2) = ValueType{1};
+    
+    // det = -1 (due to row swap)
+    auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
+    
+    EXPECT_TRUE(result.first);
+    EXPECT_NEAR(result.second, -1.0, 1e-10);
+}
+
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_LargeIntegerMatrix_Success) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    const size_t size = 5;
+    MatrixType mat(size, size);
+    
+    // Create a diagonally dominant matrix (non-singular)
+    for (size_t i = 0; i < size; ++i) {
+        for (size_t j = 0; j < size; ++j) {
+            if (i == j) {
+                mat(i, j) = ValueType{size + 1};
+            } else {
+                mat(i, j) = ValueType{1};
+            }
+        }
+    }
+    
+    auto result = MatrixAlgorithms<MatrixType>::determinantLU(mat);
+    
+    EXPECT_TRUE(result.first);
+    // For diagonally dominant matrix, determinant should be non-zero
+    EXPECT_GT(std::abs(result.second), 0.0);
+}
+
+// Test that original matrix is not modified
+TYPED_TEST(MatrixAlgorithmsTest, DeterminantLU_OriginalMatrixNotModified) {
+    using MatrixType = TypeParam;
+    using ValueType = typename MatrixType::value_type;
+    
+    MatrixType original(2, 2);
+    original(0, 0) = ValueType{1}; original(0, 1) = ValueType{2};
+    original(1, 0) = ValueType{3}; original(1, 1) = ValueType{4};
+    
+    // Store original values
+    ValueType original_00 = original(0, 0);
+    ValueType original_01 = original(0, 1);
+    ValueType original_10 = original(1, 0);
+    ValueType original_11 = original(1, 1);
+    
+    auto result = MatrixAlgorithms<MatrixType>::determinantLU(original);
+    
+    // Verify original matrix is unchanged
+    EXPECT_EQ(original(0, 0), original_00);
+    EXPECT_EQ(original(0, 1), original_01);
+    EXPECT_EQ(original(1, 0), original_10);
+    EXPECT_EQ(original(1, 1), original_11);
+    
+    // Verify determinant is correct
+    EXPECT_TRUE(result.first);
+    EXPECT_NEAR(result.second, -2.0, 1e-10);
+}
