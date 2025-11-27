@@ -2,13 +2,14 @@
 
 template <typename T>
 struct MatrixJagged {
+    using value_type = T; 
     T** data;
-    int rows, cols;
+    size_t rows, cols;
     
     // Constructor
-    MatrixJagged(int r, int c) : rows(r), cols(c) {
+    MatrixJagged(size_t r, size_t c) : rows(r), cols(c) {
         data = new T*[rows];
-        for (int i = 0; i < rows; i++) {
+        for (size_t i = 0; i < rows; i++) {
             data[i] = new T[cols];
         }
     }
@@ -21,7 +22,7 @@ struct MatrixJagged {
     // Copy Constructor
     MatrixJagged(const MatrixJagged& other) : rows(other.rows), cols(other.cols) {
         data = new T*[rows];
-        for (int i = 0; i < rows; i++) {
+        for (size_t i = 0; i < rows; i++) {
             data[i] = new T[cols];
             std::copy(other.data[i], other.data[i] + cols, data[i]);
         }
@@ -30,16 +31,11 @@ struct MatrixJagged {
     // Copy Assignment Operator
     MatrixJagged& operator=(const MatrixJagged& other) {
         if (this != &other) {
-            // Clean up current resources
             clear();
-            
-            // Copy dimensions
             rows = other.rows;
             cols = other.cols;
-            
-            // Allocate new memory and copy data
             data = new T*[rows];
-            for (int i = 0; i < rows; i++) {
+            for (size_t i = 0; i < rows; i++) {
                 data[i] = new T[cols];
                 std::copy(other.data[i], other.data[i] + cols, data[i]);
             }
@@ -70,20 +66,19 @@ struct MatrixJagged {
     }
     
     // Access element (i,j)
-    T& operator()(int i, int j) {
+    T& operator()(size_t i, size_t j) {
         return data[i][j];
     }
     
     // Const access
-    const T& operator()(int i, int j) const {
+    const T& operator()(size_t i, size_t j) const {
         return data[i][j];
     }
 
 private:
-    // Helper function to clean up resources
     void clear() {
         if (data) {
-            for (int i = 0; i < rows; i++) {
+            for (size_t i = 0; i < rows; i++) {
                 if (data[i]) {
                     delete[] data[i];
                 }

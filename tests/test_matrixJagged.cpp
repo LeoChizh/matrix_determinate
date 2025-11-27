@@ -21,7 +21,7 @@ TEST_F(MatrixJaggedTest, ConstructorAndDimensions) {
     EXPECT_NE(mat.data, nullptr);
     
     // Verify all row pointers are allocated
-    for (int i = 0; i < mat.rows; i++) {
+    for (size_t i = 0; i < mat.rows; i++) {
         EXPECT_NE(mat.data[i], nullptr);
     }
 }
@@ -75,7 +75,7 @@ TEST_F(MatrixJaggedTest, CopyConstructor) {
     
     // Verify different memory addresses for data arrays
     EXPECT_NE(original.data, copy.data);
-    for (int i = 0; i < original.rows; i++) {
+    for (size_t i = 0; i < original.rows; i++) {
         EXPECT_NE(original.data[i], copy.data[i]);
     }
 }
@@ -142,7 +142,7 @@ TEST_F(MatrixJaggedTest, MoveConstructor) {
     EXPECT_EQ(moved(1, 1), 60);
     
     // Verify all row pointers are transferred
-    for (int i = 0; i < moved.rows; i++) {
+    for (size_t i = 0; i < moved.rows; i++) {
         EXPECT_EQ(moved.data[i], original_row_pointers[i]);
     }
     delete[] original_row_pointers;

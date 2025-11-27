@@ -8,6 +8,7 @@ enable_testing()
 set(TEST_SOURCES
     test_matrix.cpp
     test_matrixJagged.cpp
+    test_matrixAlgorithms.cpp
 
     # Add new tests here manually
 )
