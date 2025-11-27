@@ -6,6 +6,8 @@ enable_testing()
 
 # Manually list test files (CMake will detect changes)
 set(TEST_SOURCES
+    test_matrix.cpp
+    test_matrixJagged.cpp
 
     # Add new tests here manually
 )

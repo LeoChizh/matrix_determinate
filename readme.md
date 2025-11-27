@@ -1,1 +1,1 @@
-## This is template for open source project
+## Matrix determinate computation
