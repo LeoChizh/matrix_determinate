@@ -1,0 +1,111 @@
+# Build directories
+build/
+*/build/
+*/*/build/
+*out/
+bin/
+lib/
+binaries/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+Makefile
+*.cmake
+!CMakeLists.txt
+!.cmake-format.yaml
+CMakeDoxyfile.in
+CMakeDoxygenDefaults.cmake
+
+# Compiler outputs
+# Object files
+*.o
+*.obj
+*.ko
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Libraries
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Debug files
+*.pdb
+*.idb
+*.ilk
+*.dmp
+
+# Dependency files
+*.d
+*.d.*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.user
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# Documentation
+docs/html/
+docs/latex/
+doxygen/
+
+# Package managers
+conaninfo.txt
+conanbuildinfo.*
+conan.lock
+conandata.yml
+vcpkg_installed/
+
+# Testing
+CTestTestfile.cmake
+Testing/
+test-results/
+
+# Coverage reports
+*.gcda
+*.gcno
+*.gcov
+coverage/
+
+# Profiling
+*.prof
+gmon.out
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*~
+*.bak
+*.backup
+
+# Logs
+*.log
+
+snapshot.txt
