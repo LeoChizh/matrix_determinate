@@ -1,0 +1,363 @@
+Running main() from ./googletest/src/gtest_main.cc
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from MatrixPerformance
+[ RUN      ] MatrixPerformance.ComprehensiveComparison
+
+
+========================================
+    MATRIX PERFORMANCE COMPARISON
+========================================
+=== Performance Test for Matrix<int> ===
+
+--- Testing size 10x10 ---
+Identity Creation        10      x100         usPASS        Success
+Determinant Calculation  10      x101         usPASS        Determinant: 13768
+Matrix Multiplication    10      x100         usPASS        Multiplication completed
+Matrix Addition          10      x100         usPASS        Addition completed
+
+--- Testing size 50x50 ---
+Identity Creation        50      x504         usPASS        Success
+Determinant Calculation  50      x5018        usFAIL        Error: OVERFLOW
+Matrix Multiplication    50      x5038        usPASS        Multiplication completed
+Matrix Addition          50      x500         usPASS        Addition completed
+
+--- Testing size 100x100 ---
+Identity Creation        100     x1007         usPASS        Success
+Determinant Calculation  100     x100117       usFAIL        Error: OVERFLOW
+Matrix Multiplication    100     x100373       usPASS        Multiplication completed
+Matrix Addition          100     x1001         usPASS        Addition completed
+
+--- Testing size 200x200 ---
+Identity Creation        200     x200357       usPASS        Success
+Determinant Calculation  200     x200988       usFAIL        Error: OVERFLOW
+Matrix Multiplication    200     x2003984      usPASS        Multiplication completed
+Matrix Addition          200     x2008         usPASS        Addition completed
+
+======================================================================
+PERFORMANCE SUMMARY
+======================================================================
+
+Matrix<int>:
+--------------------------------------------------
+Identity Creation        10x10          0 us        
+Determinant Calculation  10x10          1 us        
+Matrix Multiplication    10x10          0 us        
+Matrix Addition          10x10          0 us        
+Identity Creation        50x50          4 us        
+Matrix Multiplication    50x50          38 us       
+Matrix Addition          50x50          0 us        
+Identity Creation        100x100        7 us        
+Matrix Multiplication    100x100        373 us      
+Matrix Addition          100x100        1 us        
+Identity Creation        200x200        357 us      
+Matrix Multiplication    200x200        3984 us     
+Matrix Addition          200x200        8 us        
+
+======================================================================
+SPEED COMPARISON (Lower is better)
+======================================================================
+
+Matrix Multiplication (100x100):
+  Matrix<int>         373      us (only one type succeeded)
+
+Matrix Addition (100x100):
+  Matrix<int>         1        us (only one type succeeded)
+
+Determinant Calculation (100x100):
+  No successful results for this test
+=== Performance Test for Matrix<double> ===
+
+--- Testing size 10x10 ---
+Identity Creation        10      x100         usPASS        Success
+Determinant Calculation  10      x101         usPASS        Determinant: 8.62e+12
+Matrix Multiplication    10      x100         usPASS        Multiplication completed
+Matrix Addition          10      x100         usPASS        Addition completed
+
+--- Testing size 50x50 ---
+Identity Creation        50      x502         usPASS        Success
+Determinant Calculation  50      x5012        usPASS        Determinant: 4.45e+63
+Matrix Multiplication    50      x5038        usPASS        Multiplication completed
+Matrix Addition          50      x500         usPASS        Addition completed
+
+--- Testing size 100x100 ---
+Identity Creation        100     x1003         usPASS        Success
+Determinant Calculation  100     x10074        usPASS        Determinant: -7.98e+134
+Matrix Multiplication    100     x100335       usPASS        Multiplication completed
+Matrix Addition          100     x1003         usPASS        Addition completed
+
+--- Testing size 200x200 ---
+Identity Creation        200     x20011        usPASS        Success
+Determinant Calculation  200     x200652       usPASS        Determinant: 1.90e+289
+Matrix Multiplication    200     x2004459      usPASS        Multiplication completed
+Matrix Addition          200     x20094        usPASS        Addition completed
+
+======================================================================
+PERFORMANCE SUMMARY
+======================================================================
+
+Matrix<double>:
+--------------------------------------------------
+Identity Creation        10x10          0 us        
+Determinant Calculation  10x10          1 us        
+Matrix Multiplication    10x10          0 us        
+Matrix Addition          10x10          0 us        
+Identity Creation        50x50          2 us        
+Determinant Calculation  50x50          12 us       
+Matrix Multiplication    50x50          38 us       
+Matrix Addition          50x50          0 us        
+Identity Creation        100x100        3 us        
+Determinant Calculation  100x100        74 us       
+Matrix Multiplication    100x100        335 us      
+Matrix Addition          100x100        3 us        
+Identity Creation        200x200        11 us       
+Determinant Calculation  200x200        652 us      
+Matrix Multiplication    200x200        4459 us     
+Matrix Addition          200x200        94 us       
+
+======================================================================
+SPEED COMPARISON (Lower is better)
+======================================================================
+
+Matrix Multiplication (100x100):
+  Matrix<double>      335      us (only one type succeeded)
+
+Matrix Addition (100x100):
+  Matrix<double>      3        us (only one type succeeded)
+
+Determinant Calculation (100x100):
+  Matrix<double>      74       us (only one type succeeded)
+=== Performance Test for MatrixJagged<int> ===
+
+--- Testing size 10x10 ---
+Identity Creation        10      x100         usPASS        Success
+Determinant Calculation  10      x101         usPASS        Determinant: -1503
+Matrix Multiplication    10      x100         usPASS        Multiplication completed
+Matrix Addition          10      x100         usPASS        Addition completed
+
+--- Testing size 50x50 ---
+Identity Creation        50      x501         usPASS        Success
+Determinant Calculation  50      x5013        usFAIL        Error: OVERFLOW
+Matrix Multiplication    50      x5082        usPASS        Multiplication completed
+Matrix Addition          50      x501         usPASS        Addition completed
+
+--- Testing size 100x100 ---
+Identity Creation        100     x1006         usPASS        Success
+Determinant Calculation  100     x10075        usFAIL        Error: OVERFLOW
+Matrix Multiplication    100     x100425       usPASS        Multiplication completed
+Matrix Addition          100     x1002         usPASS        Addition completed
+
+--- Testing size 200x200 ---
+Identity Creation        200     x20012        usPASS        Success
+Determinant Calculation  200     x200746       usFAIL        Error: OVERFLOW
+Matrix Multiplication    200     x2003233      usPASS        Multiplication completed
+Matrix Addition          200     x2008         usPASS        Addition completed
+
+======================================================================
+PERFORMANCE SUMMARY
+======================================================================
+
+MatrixJagged<int>:
+--------------------------------------------------
+Identity Creation        10x10          0 us        
+Determinant Calculation  10x10          1 us        
+Matrix Multiplication    10x10          0 us        
+Matrix Addition          10x10          0 us        
+Identity Creation        50x50          1 us        
+Matrix Multiplication    50x50          82 us       
+Matrix Addition          50x50          1 us        
+Identity Creation        100x100        6 us        
+Matrix Multiplication    100x100        425 us      
+Matrix Addition          100x100        2 us        
+Identity Creation        200x200        12 us       
+Matrix Multiplication    200x200        3233 us     
+Matrix Addition          200x200        8 us        
+
+======================================================================
+SPEED COMPARISON (Lower is better)
+======================================================================
+
+Matrix Multiplication (100x100):
+  MatrixJagged<int>   425      us (only one type succeeded)
+
+Matrix Addition (100x100):
+  MatrixJagged<int>   2        us (only one type succeeded)
+
+Determinant Calculation (100x100):
+  No successful results for this test
+=== Performance Test for MatrixJagged<double> ===
+
+--- Testing size 10x10 ---
+Identity Creation        10      x100         usPASS        Success
+Determinant Calculation  10      x101         usPASS        Determinant: 1.09e+13
+Matrix Multiplication    10      x101         usPASS        Multiplication completed
+Matrix Addition          10      x100         usPASS        Addition completed
+
+--- Testing size 50x50 ---
+Identity Creation        50      x501         usPASS        Success
+Determinant Calculation  50      x5012        usPASS        Determinant: 6.14e+63
+Matrix Multiplication    50      x5038        usPASS        Multiplication completed
+Matrix Addition          50      x501         usPASS        Addition completed
+
+--- Testing size 100x100 ---
+Identity Creation        100     x1004         usPASS        Success
+Determinant Calculation  100     x100127       usPASS        Determinant: 1.36e+134
+Matrix Multiplication    100     x100400       usPASS        Multiplication completed
+Matrix Addition          100     x1004         usPASS        Addition completed
+
+--- Testing size 200x200 ---
+Identity Creation        200     x20054        usPASS        Success
+Determinant Calculation  200     x200848       usPASS        Determinant: -2.06e+289
+Matrix Multiplication    200     x2004341      usPASS        Multiplication completed
+Matrix Addition          200     x20092        usPASS        Addition completed
+
+======================================================================
+PERFORMANCE SUMMARY
+======================================================================
+
+MatrixJagged<double>:
+--------------------------------------------------
+Identity Creation        10x10          0 us        
+Determinant Calculation  10x10          1 us        
+Matrix Multiplication    10x10          1 us        
+Matrix Addition          10x10          0 us        
+Identity Creation        50x50          1 us        
+Determinant Calculation  50x50          12 us       
+Matrix Multiplication    50x50          38 us       
+Matrix Addition          50x50          1 us        
+Identity Creation        100x100        4 us        
+Determinant Calculation  100x100        127 us      
+Matrix Multiplication    100x100        400 us      
+Matrix Addition          100x100        4 us        
+Identity Creation        200x200        54 us       
+Determinant Calculation  200x200        848 us      
+Matrix Multiplication    200x200        4341 us     
+Matrix Addition          200x200        92 us       
+
+======================================================================
+SPEED COMPARISON (Lower is better)
+======================================================================
+
+Matrix Multiplication (100x100):
+  MatrixJagged<double>400      us (only one type succeeded)
+
+Matrix Addition (100x100):
+  MatrixJagged<double>4        us (only one type succeeded)
+
+Determinant Calculation (100x100):
+  MatrixJagged<double>127      us (only one type succeeded)
+[       OK ] MatrixPerformance.ComprehensiveComparison (33 ms)
+[ RUN      ] MatrixPerformance.SpecificOperations
+
+
+========================================
+    SPECIFIC OPERATIONS COMPARISON
+========================================
+=== Performance Test for Matrix<double> ===
+
+--- Testing size 10x10 ---
+Identity Creation        10      x100         usPASS        Success
+Determinant Calculation  10      x101         usPASS        Determinant: 1.12e+13
+Matrix Multiplication    10      x100         usPASS        Multiplication completed
+Matrix Addition          10      x100         usPASS        Addition completed
+
+--- Testing size 50x50 ---
+Identity Creation        50      x502         usPASS        Success
+Determinant Calculation  50      x5011        usPASS        Determinant: -1.87e+64
+Matrix Multiplication    50      x5038        usPASS        Multiplication completed
+Matrix Addition          50      x500         usPASS        Addition completed
+
+--- Testing size 100x100 ---
+Identity Creation        100     x1002         usPASS        Success
+Determinant Calculation  100     x10079        usPASS        Determinant: 2.21e+134
+Matrix Multiplication    100     x100335       usPASS        Multiplication completed
+Matrix Addition          100     x1002         usPASS        Addition completed
+
+======================================================================
+PERFORMANCE SUMMARY
+======================================================================
+
+Matrix<double>:
+--------------------------------------------------
+Identity Creation        10x10          0 us        
+Determinant Calculation  10x10          1 us        
+Matrix Multiplication    10x10          0 us        
+Matrix Addition          10x10          0 us        
+Identity Creation        50x50          2 us        
+Determinant Calculation  50x50          11 us       
+Matrix Multiplication    50x50          38 us       
+Matrix Addition          50x50          0 us        
+Identity Creation        100x100        2 us        
+Determinant Calculation  100x100        79 us       
+Matrix Multiplication    100x100        335 us      
+Matrix Addition          100x100        2 us        
+
+======================================================================
+SPEED COMPARISON (Lower is better)
+======================================================================
+
+Matrix Multiplication (100x100):
+  Matrix<double>      335      us (only one type succeeded)
+
+Matrix Addition (100x100):
+  Matrix<double>      2        us (only one type succeeded)
+
+Determinant Calculation (100x100):
+  Matrix<double>      79       us (only one type succeeded)
+=== Performance Test for MatrixJagged<double> ===
+
+--- Testing size 10x10 ---
+Identity Creation        10      x100         usPASS        Success
+Determinant Calculation  10      x101         usPASS        Determinant: 7.41e+12
+Matrix Multiplication    10      x100         usPASS        Multiplication completed
+Matrix Addition          10      x100         usPASS        Addition completed
+
+--- Testing size 50x50 ---
+Identity Creation        50      x502         usPASS        Success
+Determinant Calculation  50      x5011        usPASS        Determinant: -1.94e+64
+Matrix Multiplication    50      x50135       usPASS        Multiplication completed
+Matrix Addition          50      x501         usPASS        Addition completed
+
+--- Testing size 100x100 ---
+Identity Creation        100     x1005         usPASS        Success
+Determinant Calculation  100     x10080        usPASS        Determinant: 3.08e+134
+Matrix Multiplication    100     x100739       usPASS        Multiplication completed
+Matrix Addition          100     x1004         usPASS        Addition completed
+
+======================================================================
+PERFORMANCE SUMMARY
+======================================================================
+
+MatrixJagged<double>:
+--------------------------------------------------
+Identity Creation        10x10          0 us        
+Determinant Calculation  10x10          1 us        
+Matrix Multiplication    10x10          0 us        
+Matrix Addition          10x10          0 us        
+Identity Creation        50x50          2 us        
+Determinant Calculation  50x50          11 us       
+Matrix Multiplication    50x50          135 us      
+Matrix Addition          50x50          1 us        
+Identity Creation        100x100        5 us        
+Determinant Calculation  100x100        80 us       
+Matrix Multiplication    100x100        739 us      
+Matrix Addition          100x100        4 us        
+
+======================================================================
+SPEED COMPARISON (Lower is better)
+======================================================================
+
+Matrix Multiplication (100x100):
+  MatrixJagged<double>739      us (only one type succeeded)
+
+Matrix Addition (100x100):
+  MatrixJagged<double>4        us (only one type succeeded)
+
+Determinant Calculation (100x100):
+  MatrixJagged<double>80       us (only one type succeeded)
+[       OK ] MatrixPerformance.SpecificOperations (7 ms)
+[----------] 2 tests from MatrixPerformance (41 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (41 ms total)
+[  PASSED  ] 2 tests.
